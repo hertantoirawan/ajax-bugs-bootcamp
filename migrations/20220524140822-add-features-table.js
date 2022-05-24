@@ -1,21 +1,13 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('bugs', {
+    await queryInterface.createTable('features', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      problem: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      error_text: {
-        allowNull: true,
-        type: Sequelize.STRING,
-      },
-      commit: {
+      name: {
         allowNull: false,
         type: Sequelize.STRING,
       },
@@ -29,8 +21,19 @@ module.exports = {
       },
 
     });
+
+    await queryInterface.addColumn('bugs',
+      'feature_id', {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'features',
+          key: 'id',
+        },
+      });
   },
   down: async (queryInterface) => {
-    await queryInterface.dropTable('bugs');
+    await queryInterface.removeColumn('bugs', 'feature_id');
+    await queryInterface.dropTable('features');
   },
 };

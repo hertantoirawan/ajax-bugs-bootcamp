@@ -10,12 +10,15 @@ export default function initBugsController(db) {
 
   const create = async (request, response) => {
     try {
-      const { problem, errorText, featureID } = request.body;
+      const {
+        problem, errorText, commit, featureID,
+      } = request.body;
 
       const date = new Date();
 
       const bug = await db.Bug.create({
-        problem, error_text: errorText, feature_id: featureID, created_at: date, updated_at: date,
+        // eslint-disable-next-line max-len
+        problem, error_text: errorText, commit, feature_id: featureID, created_at: date, updated_at: date,
       });
       response.send({ bug });
     } catch (error) {

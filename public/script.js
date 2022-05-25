@@ -2,10 +2,10 @@ const addBug = () => {
   const data = {
     problem: document.getElementById('problem').value,
     errorText: document.getElementById('errorText').value,
-    featureID: 1, // get selected feature
+    commit: document.getElementById('commit').value,
+    featureID: document.querySelector('input[name=features]:checked').id,
   };
 
-  // Make a request to create an item
   axios
     .post('/bugs', data)
     .then((response) => {
@@ -14,8 +14,8 @@ const addBug = () => {
 
       document.getElementById('problem').value = '';
       document.getElementById('errorText').value = '';
-
-      // deselect feature
+      document.getElementById('commit').value = '';
+      document.querySelector('input[name=features]:checked').checked = false;
 
       const bugForm = document.getElementById('createBugForm');
       bugForm.style.display = 'none';
@@ -41,21 +41,54 @@ createBugFormButton.addEventListener('click', () => {
     bugFormFeatures.removeChild(bugFormFeatures.lastChild);
   }
 
-  const featureInput = document.createElement('input');
-  featureInput.type = 'radio';
-  featureInput.name = 'features';
-  featureInput.id = '1';
-  featureInput.value = 'Cool Feature';
+  axios
+    .get('/features')
+    .then((response) => {
+      // handle success
+      response.data.features.forEach((feature) => {
+        const featureInput = document.createElement('input');
+        featureInput.type = 'radio';
+        featureInput.name = 'features';
+        featureInput.id = feature.id;
+        featureInput.value = feature.name;
 
-  const featureLabel = document.createElement('label');
-  featureLabel.for = '1';
-  featureLabel.innerText = 'Cool Feature';
+        const featureLabel = document.createElement('label');
+        featureLabel.for = feature.id;
+        featureLabel.innerText = feature.name;
+
+        bugFormFeatures.appendChild(featureInput);
+        bugFormFeatures.appendChild(featureLabel);
+      });
+    })
+    .catch((error) => {
+      // handle error
+      console.log(error);
+    });
 
   const createBugButton = document.createElement('button');
   createBugButton.innerText = 'Submit';
   createBugButton.addEventListener('click', addBug);
 
-  bugFormFeatures.appendChild(featureInput);
-  bugFormFeatures.appendChild(featureLabel);
   bugFormFeatures.appendChild(createBugButton);
 });
+
+axios
+  .get('/bugs')
+  .then((response) => {
+    // handle success
+    const bugList = document.createElement('ul');
+    console.log(response.data.bugs);
+
+    response.data.bugs.forEach((bug) => {
+      const bugListItem = document.createElement('li');
+      bugListItem.innerText = `${bug.problem} ${bug.error_text} ${bug.commit}`;
+
+      bugList.appendChild(bugListItem);
+    });
+
+    document.getElementById('bugList').appendChild(bugList);
+  })
+  .catch((error) => {
+    // handle error
+    console.log(error);
+  });

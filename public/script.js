@@ -1,3 +1,33 @@
+const getBugList = () => {
+  const bugListContainer = document.getElementById('bugList');
+  while (bugListContainer.lastChild) {
+    bugListContainer.removeChild(bugListContainer.lastChild);
+  }
+
+  axios
+    .get('/bugs')
+    .then((response) => {
+    // handle success
+      const bugList = document.createElement('ul');
+      console.log(response.data.bugs);
+
+      response.data.bugs.forEach((bug) => {
+        const bugListItem = document.createElement('li');
+        bugListItem.innerText = `${bug.problem} ${bug.error_text} ${bug.commit}`;
+
+        bugList.appendChild(bugListItem);
+      });
+
+      document.getElementById('bugList').appendChild(bugList);
+    })
+    .catch((error) => {
+    // handle error
+      console.log(error);
+    });
+};
+
+getBugList();
+
 const addBug = () => {
   const data = {
     problem: document.getElementById('problem').value,
@@ -26,11 +56,13 @@ const addBug = () => {
       // handle error
       console.log(error);
     });
+
+  getBugList();
 };
 
 const createBugFormButton = document.getElementById('createBugButton');
 
-createBugFormButton.addEventListener('click', () => {
+createBugFormButton.addEventListener('click', async () => {
   document.getElementById('createBugButton').disabled = 'disabled';
 
   const bugForm = document.getElementById('createBugForm');
@@ -41,7 +73,7 @@ createBugFormButton.addEventListener('click', () => {
     bugFormFeatures.removeChild(bugFormFeatures.lastChild);
   }
 
-  axios
+  await axios
     .get('/features')
     .then((response) => {
       // handle success
@@ -58,6 +90,7 @@ createBugFormButton.addEventListener('click', () => {
 
         bugFormFeatures.appendChild(featureInput);
         bugFormFeatures.appendChild(featureLabel);
+        bugFormFeatures.appendChild(document.createElement('br'));
       });
     })
     .catch((error) => {
@@ -71,24 +104,3 @@ createBugFormButton.addEventListener('click', () => {
 
   bugFormFeatures.appendChild(createBugButton);
 });
-
-axios
-  .get('/bugs')
-  .then((response) => {
-    // handle success
-    const bugList = document.createElement('ul');
-    console.log(response.data.bugs);
-
-    response.data.bugs.forEach((bug) => {
-      const bugListItem = document.createElement('li');
-      bugListItem.innerText = `${bug.problem} ${bug.error_text} ${bug.commit}`;
-
-      bugList.appendChild(bugListItem);
-    });
-
-    document.getElementById('bugList').appendChild(bugList);
-  })
-  .catch((error) => {
-    // handle error
-    console.log(error);
-  });
